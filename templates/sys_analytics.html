@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Analytics</title>
+</head>
+<body>
+    <h1>System Analytics</h1>
+    <p>CPU Usage: {{ cpu_usage }}%</p>
+    <p>Memory Usage: {{ memory_usage }}%</p>
+    <p>Disk Usage: {{ disk_usage }}%</p>
+    <script>
+        function updateSystemAnalytics() {
+            fetch('/system-analytics')
+                .then(response => response.text())
+                .then(html => {
+                    const container = document.createElement('div');
+                    container.innerHTML = html;
+                    const cpuUsage = container.querySelector('#cpu-usage').innerText;
+                    const memoryUsage = container.querySelector('#memory-usage').innerText;
+                    const diskUsage = container.querySelector('#disk-usage').innerText;
+
+                    document.getElementById('cpu-usage').innerText = cpuUsage;
+                    document.getElementById('memory-usage').innerText = memoryUsage;
+                    document.getElementById('disk-usage').innerText = diskUsage;
+                })
+                .catch(error => {
+                    console.error('Error fetching system analytics:', error);
+                });
+        }
+
+        // Initial update
+        updateSystemAnalytics();
+
+        // Update every 10 seconds
+        setInterval(updateSystemAnalytics, 10000);
+    </script>
+</body>
+</html>
