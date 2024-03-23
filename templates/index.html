@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chronological Graphs</title>
+    <!-- Include Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        canvas {
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <canvas id="cpuChart"></canvas>
+    </div>
+    <div>
+        <canvas id="diskChart"></canvas>
+    </div>
+    <div>
+        <canvas id="networkChart"></canvas>
+    </div>
+    <div>
+        <canvas id="memoryChart"></canvas>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Fetch data from the backend API
+            fetch('/data')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Data received:', data);
+                    renderCharts(data);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        });
+    
+        function renderCharts(data) {
+            // Check if data is an array
+            if (Array.isArray(data)) {
+                // Proceed with rendering individual charts for each data item
+                data.forEach((item, index) => {
+                    renderChart(`cpuChart`, item.label, item.data);
+                });
+            } else if (typeof data === 'object') {
+                // Render a single chart if data is an object
+                renderChart('cpuChart', data.label, data.data);
+            } else {
+                console.error('Data is not an array or an object:', data);
+            }
+        }
+    
+        // Function to render individual chart
+        function renderChart(canvasId, label, data) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        borderColor: getRandomColor(),
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        xAxes: [{
+                            beginAtZero : true,
+                            type: 'time',
+                            time: {
+                                unit: 'month'
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Date'
+                            }
+                        }],
+                        yAxes: [{
+                            beginAtZero : true,
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Usage (%)'
+                            }
+                        }]
+                    }
+                }
+            });
+        }
+    
+        // Function to generate random color
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+    </script>      
+</body>
+</html>
